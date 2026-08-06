@@ -106,6 +106,7 @@ if __name__ == '__main__':
 
     # MODEL FITTING
     # fetch and filter df containing training data
+    print(f"PATH DATA: {str(path_data)}")
     # load full dataset, restrict to bouts within the stimulus window
     df_0 = pd.read_hdf(str(path_data))
     query_time = f"{ConfigurationModel.COLUMN_TIME_START} > {time_start_stimulus} and {ConfigurationModel.COLUMN_TIME_END} < {time_end_stimulus}"
