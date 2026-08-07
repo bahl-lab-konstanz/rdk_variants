@@ -108,6 +108,7 @@ if __name__ == '__main__':
     # fetch and filter df containing training data
     # load full dataset, restrict to bouts within the stimulus window
     df_0 = pd.read_hdf(str(path_data))
+    print(f"DEBUG | df columns: {list(df_0.columns)}")
     query_time = f"{ConfigurationModel.COLUMN_TIME_START} > {time_start_stimulus} and {ConfigurationModel.COLUMN_TIME_END} < {time_end_stimulus}"
     df_0 = df_0.query(query_time)
     if exclude_straight_bout:
