@@ -25,6 +25,8 @@ class ConfigurationExperiment():
     COLUMN_IBI                 = "interbout_interval"
     COLUMN_END_X               = "end_x_position"
     COLUMN_END_Y               = "end_y_position"
+    COLUMN_TRIAL               = "trial"
+    COLUMN_TRIAL_FROM_START    = "trial_count_since_experiment_start"
 
     LABEL_LEFT_ANGLE  = "left"
     LABEL_RIGHT_ANGLE = "right"
@@ -49,6 +51,8 @@ class ConfigurationModel():
     COLUMN_IBI                 = "interbout_interval"
     COLUMN_RADIUS              = "radius"
     COLUMN_STIM_VARIANT        = "stimulus_variant"
+    COLUMN_TRIAL               = "trial"
+    COLUMN_TRIAL_FROM_START    = "trial_count_since_experiment_start"
 
     MAX_SCORE = 999999
 

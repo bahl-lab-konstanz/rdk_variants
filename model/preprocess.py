@@ -28,6 +28,7 @@ for fish_id in fish_id_list:
     # create dataframe
     df_out = pd.DataFrame({
         ConfigurationModel.COLUMN_FISH_ID: fish_id,
+        ConfigurationModel.COLUMN_TRIAL: df_fish.index.get_level_values(ConfigurationExperiment.COLUMN_TRIAL_FROM_START),
         ConfigurationModel.COLUMN_TIME_START: df_fish[ConfigurationExperiment.COLUMN_TIME_START],
         ConfigurationModel.COLUMN_TIME_END: df_fish[ConfigurationExperiment.COLUMN_TIME_END],
         ConfigurationModel.COLUMN_TIME_START_ABSOLUTE: df_fish[ConfigurationExperiment.COLUMN_TIME_START_ABSOLUTE],
@@ -38,7 +39,7 @@ for fish_id in fish_id_list:
         ConfigurationModel.COLUMN_DIR: df_fish[ConfigurationModel.COLUMN_DIR],
         ConfigurationModel.COLUMN_COH: df_fish[ConfigurationModel.COLUMN_COH],
         ConfigurationModel.COLUMN_RADIUS: BehaviorProcessingService.compute_radius(df_fish)
-    })
+    }).reset_index(drop=True)
 
     # create parent directory if needed
     (path_save / variant).mkdir(parents=True, exist_ok=True)
