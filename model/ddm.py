@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import numba as nb
 
@@ -74,7 +76,6 @@ class DDMstable(Model):
 
     def simulate(self, input_signal=None, dt=None, number_trials=None):
         # Track wall-clock time for the debug print at the end.
-        time0 = time.time_ns()
         if number_trials is None:
             number_trials = self.trials_per_simulation
         if input_signal is not None:
@@ -89,7 +90,7 @@ class DDMstable(Model):
             # Multiple named conditions (e.g. one per coherence level),
             # each simulated separately and stored under its own key.
             for key in self.input_signal.value.keys():
-                if ModelService.is_window(key):
+                if DDMService.is_window(key):
                     # Window conditions hold a constant value over a fixed
                     # time span, repeated across trials_per_simulation.
                     duration_input = (self.input_signal.value[key]["time_end"] - self.input_signal.value[key]["time_start"]) * self.input_signal.value[key]["trials_per_simulation"]
@@ -108,7 +109,7 @@ class DDMstable(Model):
             # Same per-condition loop as "fit", but always uses the
             # constant-input simulation routine (value + fixed duration).
             for key in self.input_signal.value.keys():
-                if ModelService.is_window(key):
+                if DDMService.is_window(key):
                     current_input_value = self.input_signal.value[key]["value"]
                     current_input_duration = (self.input_signal.value[key]["time_end"] - self.input_signal.value[key]["time_start"]) * self.input_signal.value[key]["trials_per_simulation"]
                 else:
@@ -147,7 +148,6 @@ class DDMstable(Model):
                     "time_list": time_list
                 }
             }
-        print(f"DEBUG | {(time.time_ns()-time0) / (1e9)}")
         return output
 
     def simulate_trial(self, input_signal, dt=None):
@@ -224,7 +224,7 @@ class DDMstable(Model):
         # over a fixed duration (used for "window"/"constant" conditions).
         if dt is None:
             dt = self.parameters.dt.value
-        return self.simulate_trial_computation(
+        return self.simulate_trial_computation_constant(
                 self.parameters.scaling_factor.value,
                 self.parameters.threshold.value,
                 self.parameters.noise_sigma.value,

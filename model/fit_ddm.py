@@ -48,14 +48,14 @@ if __name__ == '__main__':
     precompute_duration_experiment = False  # precompute per-condition durations upfront for loss normalization
     # modeling configurations
     analysed_parameter_list = ConfigurationExperiment.COHERENCE_LIST  # None  # [1, 5, 6, 7.5, 10]  #  # fixed conditions, or infer from data if None
-    trials_per_simulation = 2  # 2000  #
+    trials_per_simulation = 2000  #
     sample_percentage_size = 1  # fraction of dataset drawn per bootstrap
     number_bootstraps = 1  #  # number of independent bootstrap resamples
     number_model_per_booststrap = 1  # number of independent fits per bootstrap
     fish_age = '5'
     mean_angle_bout = 50  # degrees, baseline turning angle for synthetic bouts
-    maxiter = 15  # 1500
-    popsize = 10  # 100
+    maxiter = 1500
+    popsize = 100
     focus_scope = (0, 2)  # time window used by the loss function, set to None to avoid constraining
 
     # OTHER PARAMETERS
@@ -106,7 +106,6 @@ if __name__ == '__main__':
 
     # MODEL FITTING
     # fetch and filter df containing training data
-    print(f"PATH DATA: {str(path_data)}")
     # load full dataset, restrict to bouts within the stimulus window
     df_0 = pd.read_hdf(str(path_data))
     query_time = f"{ConfigurationModel.COLUMN_TIME_START} > {time_start_stimulus} and {ConfigurationModel.COLUMN_TIME_END} < {time_end_stimulus}"
