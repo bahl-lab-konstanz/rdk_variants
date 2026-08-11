@@ -24,6 +24,19 @@ class BehaviorProcessingService():
                 return g
         
         return df.groupby(level='stimulus_name', group_keys=False).apply(_tag_group)
+    
+    @staticmethod
+    def compute_quantities_per_parameters(df, column_name=ConfigurationModel.COLUMN_CORRECT_BOUT, analysed_parameter=ConfigurationModel.COLUMN_COH):
+        parameter_list = np.sort(df[analysed_parameter].unique())
+
+        if column_name == ConfigurationModel.COLUMN_CORRECT_BOUT:
+            df = df[df[column_name] != -1]
+
+        quantity_list = np.array([df[df[analysed_parameter] == parameter][column_name].mean()
+                             for parameter in parameter_list])
+        std_quantity_list = np.array([df[df[analysed_parameter] == parameter][column_name].std() for parameter in parameter_list])
+        return parameter_list, quantity_list, std_quantity_list
+
 
     @classmethod
     def compute_correct_bout_list(cls, df, side_threshold=0, inverted_stimulus=False, simmetric=False):

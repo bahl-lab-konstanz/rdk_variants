@@ -333,7 +333,7 @@ class DDMstable(Model):
                 bout_decision_list = np.array(output_signal[key]["bout_decision_list"])
                 if len(response_time_list) > self.max_bout_per_simulation:
                     # Runaway/unstable simulation: short-circuit with max penalty.
-                    score = ConfigurationModel.MAX_SCORE
+                    score = ConfigurationModel.SCORE_MAX
                     score_dict["score"] = score
                     return score_dict
 
@@ -471,7 +471,7 @@ class DDMstable(Model):
             # Fallback for degenerate/failed computations: assign the max
             # penalty score, perturbed slightly so the optimizer sees a
             # non-flat (still informative) landscape.
-            score = ConfigurationModel.MAX_SCORE + np.random.normal(scale=missing_data_score)
+            score = ConfigurationModel.SCORE_MAX + np.random.normal(scale=missing_data_score)
         score_dict["score"] = score
 
         return score_dict

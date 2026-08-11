@@ -54,8 +54,54 @@ class ConfigurationModel():
     COLUMN_TRIAL               = "trial"
     COLUMN_TRIAL_FROM_START    = "trial_count_since_experiment_start"
 
-    MAX_SCORE = 999999
+    SCORE_MIN = 0
+    SCORE_MAX = 10
+    LABEL_SCORE = "loss"
+    PARAMETER_LIST = [
+        {"label": "noise_sigma",
+         "label_show": "diffusion",
+         "example_value": 1,
+         "min": 0.0,
+         "mean": 1.5,
+         "max": 3.0,
+         "relevant_values": None},
+        {"label": "scaling_factor",
+         "label_show": "drift",
+         "example_value": 1,
+         "min": -3.0,
+         "mean": 0.0,
+         "max": 3.0,
+         "relevant_values": None},
+        {"label": "leak",
+         "label_show": "leak",
+         "example_value": 0.3,
+         "min": -3.0,
+         "mean": 0.0,
+         "max": 3.0,
+         "relevant_values": (-1, 1)},
+        {"label": 'residual_after_bout',
+         "label_show": "reset",
+         "example_value": 0.1,
+         "min": 0.0,
+         "mean": 0.5,
+         "max": 1.0,
+         "relevant_values": None},
+        {"label": 'inactive_time',
+         "label_show": "delay",
+         "example_value": 0.05,
+         "min": 0.0,
+         "mean": 0.5,
+         "max": 1.0,
+         "relevant_values": None},
+    ]
+
+
 
 class ConfigurationAnalysis():
     NUMBER_RESAMPLING_BOOTSTRAPPING = 10000
     THRESHOLD_P_VALUE_SIGNIFICANT = 0.005
+
+    EXAMPLE_FISH_LIST = {"CoherentDotsFrameBasedRedraw": ["000", "001", "002", "003"],
+                         "CoherentDotsLifetimeBasedRedraw": ["018", "019", "020", "021"],
+                         "OpposingFractionDots": ["006", "007", "008", "009"],
+                         "RandomDirectionDots": ["012", "013", "014", "015"],}

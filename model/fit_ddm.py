@@ -47,7 +47,7 @@ if __name__ == '__main__':
     max_response_time = 10
     precompute_duration_experiment = False  # precompute per-condition durations upfront for loss normalization
     # modeling configurations
-    analysed_parameter_list = ConfigurationExperiment.COHERENCE_LIST  # None  # [1, 5, 6, 7.5, 10]  #  # fixed conditions, or infer from data if None
+    analysed_parameter_list = ConfigurationExperiment.COHERENCE_LIST 
     trials_per_simulation = 2000  #
     sample_percentage_size = 1  # fraction of dataset drawn per bootstrap
     number_bootstraps = 1  #  # number of independent bootstrap resamples
