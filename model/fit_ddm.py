@@ -115,7 +115,8 @@ if __name__ == '__main__':
         df_0 = BehaviorProcessingService.remove_fast_straight_bout(df_0, threshold_response_time=100)
     if exclude_border:
         df_0 = BehaviorProcessingService.remove_border_bout(df_0, BehaviorProcessingService.transform_arena_measure(5))
-    df = df_0
+    df = df_0# update column type for COH
+    df[ConfigurationModel.COLUMN_COH] = pd.to_numeric(df[ConfigurationModel.COLUMN_COH])
 
     # fetch df containing target model
     # optional reference model used later to compute fitting error vs ground truth
@@ -131,10 +132,14 @@ if __name__ == '__main__':
     # fitting
     # draw independent resampled copies of the training data, stratified by
     # the analysed stimulus parameter, with replacement
-    df_fish_list = StatisticsService.randomly_sample_df(df=df, sample_number=number_bootstraps, 
-                                                        sample_percentage_size=sample_percentage_size, 
-                                                        sample_per_column=ConfigurationModel.COLUMN_COH, 
-                                                        with_replacement=True)
+    if number_bootstraps > 1:
+        df_fish_list = StatisticsService.randomly_sample_df(df=df, sample_number=number_bootstraps, 
+                                                            sample_percentage_size=sample_percentage_size, 
+                                                            sample_per_column=ConfigurationModel.COLUMN_COH, 
+                                                            with_replacement=True)
+    else:
+        df_fish_list = [df]
+    
     for index_bootstrap in range(number_bootstraps):
         df_fish = df_fish_list[index_bootstrap]
         if analysed_parameter_list is None:
@@ -193,7 +198,7 @@ if __name__ == '__main__':
                 fitting_df_list = []
                 for fitting_index, fitting_item in enumerate(ddm_model.history_fitting):
                     fitting_item_dict = {
-                        'fish_id': label_simulation,
+                        "fish_id": label_simulation,
                         "model_id": [index_model],
                         "iteration": [fitting_index],
                         # "convergence": [fitting_item["convergence"]],

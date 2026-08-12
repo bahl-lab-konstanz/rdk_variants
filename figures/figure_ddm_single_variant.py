@@ -35,7 +35,7 @@ from utils.config import ConfigurationAnalysis, ConfigurationExperiment, Configu
 # =====================================================================
 # Load environment variables to locate data and output directories
 # =====================================================================
-stimulus_variant = "CoherentDotsLifetimeBasedRedraw"
+stimulus_variant = "CoherentDotsFrameBasedRedraw"
 env = dotenv_values("config.env")
 path_dir = Path(env['PATH_DIR'])
 path_data = path_dir / stimulus_variant  # directory containing behavioral datasets
@@ -163,7 +163,7 @@ if show_loss_reduction:
 # =====================================================================
 if show_repeatability:
     # Configuration for repeatability analysis
-    test_id_list = ConfigurationAnalysis.EXAMPLE_FISH_LIST
+    test_id_list = ConfigurationAnalysis.EXAMPLE_FISH_LIST[stimulus_variant]
     plot_width_here = 0.7  # style.plot_width_small
     padding_here = style.padding_small
     palette_here = style.palette["default"]
@@ -522,9 +522,9 @@ if show_individual_estimations or show_distribution_parameters:
             for i_fish_id, fish_id in enumerate(fish_id_array):
                 model_id = list(model_dict.keys())[fish_id]
                 try:
-                    fish_index = ConfigurationAnalysis.EXAMPLE_FISH_LIST.index(model_id)
+                    fish_index = ConfigurationAnalysis.EXAMPLE_FISH_LIST[stimulus_variant].index(model_id)
                     lc = style.palette["fish_code"][fish_index]
-                    print(f"Fish {ConfigurationAnalysis.EXAMPLE_FISH_LIST[fish_index]} | {p['label']}: {model_parameter_median_array[i_p+1, len(fish_id_array)-1-fish_id]}")
+                    print(f"Fish {ConfigurationAnalysis.EXAMPLE_FISH_LIST[stimulus_variant][fish_index]} | {p['label']}: {model_parameter_median_array[i_p+1, len(fish_id_array)-1-fish_id]}")
                 except ValueError:
                     lc = palette[i_p]
                 plot_individual.draw_line(model_parameter_quant_array[i_p + 1, fish_id_array[i_fish_id]], np.ones(3)*fish_id, lc=lc)  #, alpha=0.5)
