@@ -35,8 +35,8 @@ class ConfigurationExperiment():
 
 class ConfigurationModel():
     # naming standard used by the DDM during fitting and simulation
-    LABEL_LEFT_ANGLE  = -90  # degrees
-    LABEL_RIGHT_ANGLE = +90  # degrees
+    LABEL_LEFT_ANGLE  = 90   # degrees
+    LABEL_RIGHT_ANGLE = -90  # degrees
     LABEL_STRAIGHT = -1
 
     COLUMN_FISH_ID             = "fish_id"
@@ -94,8 +94,6 @@ class ConfigurationModel():
          "max": 1.0,
          "relevant_values": None},
     ]
-
-
 
 class ConfigurationAnalysis():
     NUMBER_RESAMPLING_BOOTSTRAPPING = 10000

@@ -28,6 +28,7 @@ from utils.config import ConfigurationExperiment, ConfigurationModel
 if __name__ == '__main__':
     # PARAMETERS
     # data usage
+    stimulus_label = "CoherentDotsFrameBasedRedraw"
     exclude_straight_bout = True  # drop fast, near-straight (non-decision) bouts
     exclude_border = True  # drop bouts too close to the arena wall (set False for synthetic data)
     compute_synthetic_dataset = False  # simulate a full synthetic bout dataset after fitting
@@ -120,7 +121,10 @@ if __name__ == '__main__':
 
     # fetch df containing target model
     # optional reference model used later to compute fitting error vs ground truth
-    df_model_target = pd.read_hdf(str(path_model)) if path_model is not None else pd.DataFrame()
+    try:
+        df_model_target = pd.read_hdf(str(path_model)) if path_model is not None else pd.DataFrame()
+    except IsADirectoryError:
+        df_model_target = pd.DataFrame()
 
     # simulation
     # accumulators for results across all bootstraps/models: fitting history,
@@ -139,6 +143,10 @@ if __name__ == '__main__':
                                                             with_replacement=True)
     else:
         df_fish_list = [df]
+
+    df_stimulus_lookup = pd.read_csv(env["PATH_LOOKUP"])
+    df_stimulus_lookup = df_stimulus_lookup[df_stimulus_lookup["stimulus_label"] == stimulus_label]
+    
     
     for index_bootstrap in range(number_bootstraps):
         df_fish = df_fish_list[index_bootstrap]
@@ -165,8 +173,9 @@ if __name__ == '__main__':
         # one entry per stimulus condition, holding a fixed drift-input value
         # over the full simulated duration for that condition
         fitting_input_signal = InputSignal(label='constant', value={
-            param: {"value": param / 100, "duration": trials_per_simulation * (time_end_stimulus - time_start_stimulus)} for
-            param in analysed_parameter_list})
+            param: {"value": df_stimulus_lookup[df_stimulus_lookup["stimulus_strength"] == param]["motion_strength"].iloc[0], 
+                    "duration": trials_per_simulation * (time_end_stimulus - time_start_stimulus)} for
+                        param in analysed_parameter_list})
 
         for index_model in range(number_model_per_booststrap):
             # unique ID for this fit: simulation label + bootstrap/model index + timestamp
