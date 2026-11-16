@@ -28,7 +28,6 @@ from utils.config import ConfigurationExperiment, ConfigurationModel
 if __name__ == '__main__':
     # PARAMETERS
     # data usage
-    stimulus_label = "CoherentDotsFrameBasedRedraw"
     exclude_straight_bout = True  # drop fast, near-straight (non-decision) bouts
     exclude_border = True  # drop bouts too close to the arena wall (set False for synthetic data)
     compute_synthetic_dataset = False  # simulate a full synthetic bout dataset after fitting
@@ -77,6 +76,9 @@ if __name__ == '__main__':
     except KeyError:
         path_model = None
 
+    # Extract stimulus label from data directory
+    stimulus_label = path_data.parent.name
+
     # MODEL DEFINITION
     dt = 0.01
     response_time_label = ConfigurationExperiment.COLUMN_IBI  # 'response_time'
@@ -86,10 +88,10 @@ if __name__ == '__main__':
     parameters = ParameterList()
     parameters.add_parameter("dt", Parameter(value=dt))
     parameters.add_parameter("residual_after_bout", Parameter(min=0, max=1, value=0, fittable=True))
-    parameters.add_parameter("noise_sigma", Parameter(min=0.1, max=3, value=1, fittable=True))
-    parameters.add_parameter("leak", Parameter(min=-3, max=3, value=0, fittable=True))
+    parameters.add_parameter("noise_sigma", Parameter(min=0.1, max=5, value=1, fittable=True))
+    parameters.add_parameter("leak", Parameter(min=-5, max=5, value=0, fittable=True))
     parameters.add_parameter("threshold", Parameter(min=0.01, max=2, value=1, fittable=False))
-    parameters.add_parameter("scaling_factor", Parameter(min=-3, max=3, value=1, fittable=True))
+    parameters.add_parameter("scaling_factor", Parameter(min=-5, max=5, value=1, fittable=True))
     parameters.add_parameter("inactive_time", Parameter(min=0, max=1, value=0, fittable=True))
 
     if set_parameters_from_model:
