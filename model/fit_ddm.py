@@ -88,7 +88,7 @@ if __name__ == '__main__':
     parameters = ParameterList()
     parameters.add_parameter("dt", Parameter(value=dt))
     parameters.add_parameter("residual_after_bout", Parameter(min=0, max=1, value=0, fittable=True))
-    parameters.add_parameter("noise_sigma", Parameter(min=0.1, max=5, value=1, fittable=True))
+    parameters.add_parameter("noise_sigma", Parameter(min=0.01, max=5, value=1, fittable=True))
     parameters.add_parameter("leak", Parameter(min=-5, max=5, value=0, fittable=True))
     parameters.add_parameter("threshold", Parameter(min=0.01, max=2, value=1, fittable=False))
     parameters.add_parameter("scaling_factor", Parameter(min=-5, max=5, value=1, fittable=True))
