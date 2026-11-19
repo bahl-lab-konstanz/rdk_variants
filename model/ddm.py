@@ -90,6 +90,11 @@ class DDMstable(Model):
             # Multiple named conditions (e.g. one per coherence level),
             # each simulated separately and stored under its own key.
             for key in self.input_signal.value.keys():
+                if "noise_amplitude" not in self.input_signal.value[key] or self.input_signal.value[key]["noise_amplitude"] is None:
+                    noise_amplitude = 1 
+                else:
+                    noise_amplitude = self.input_signal.value[key]["noise_amplitude"]
+                
                 if DDMService.is_window(key):
                     # Window conditions hold a constant value over a fixed
                     # time span, repeated across trials_per_simulation.
@@ -97,27 +102,36 @@ class DDMstable(Model):
                     response_time_list, bout_decision_list, time_list, _ = self.simulate_trial_constant(
                         self.input_signal.value[key]["value"],
                         duration_input,
+                        noise_amplitude,
                         dt)
                 else:
-                    response_time_list, bout_decision_list, time_list, _ = self.simulate_trial(self.input_signal.value[key], dt)
+                    response_time_list, bout_decision_list, time_list, _ = self.simulate_trial(self.input_signal.value[key], noise_amplitude, dt)
+                
                 output[key] = {
                     "response_time_list": response_time_list,
                     "bout_decision_list": bout_decision_list,
                     "time_list": time_list
-                }
+                }    
         elif self.input_signal.label == "constant":
             # Same per-condition loop as "fit", but always uses the
             # constant-input simulation routine (value + fixed duration).
             for key in self.input_signal.value.keys():
+                if "noise_amplitude" not in self.input_signal.value[key] or self.input_signal.value[key]["noise_amplitude"] is None:
+                    noise_amplitude = 1 
+                else:
+                    noise_amplitude = self.input_signal.value[key]["noise_amplitude"]
+                
                 if DDMService.is_window(key):
                     current_input_value = self.input_signal.value[key]["value"]
                     current_input_duration = (self.input_signal.value[key]["time_end"] - self.input_signal.value[key]["time_start"]) * self.input_signal.value[key]["trials_per_simulation"]
                 else:
                     current_input_value = self.input_signal.value[key]["value"]
                     current_input_duration = self.input_signal.value[key]["duration"]
+                
                 response_time_list, bout_decision_list, time_list, _ = self.simulate_trial_constant(
                     current_input_value,
                     current_input_duration,
+                    noise_amplitude,
                     dt)
                 output[key] = {
                     "response_time_list": response_time_list,
@@ -132,7 +146,8 @@ class DDMstable(Model):
                 if self.is_fitting:
                     self.compute_input_signal(index=self.counter_input_signal, scaling_factor=self.scaling_factor_input)
                     self._update_counter_input_signal(random=False)
-                response_time_list_trial, bout_decision_list_trial, time_list_trial, _ = self.simulate_trial(self.input_signal.value, dt)
+                noise_amplitude = 1 if self.input_signal.noise_amplitude is None else self.input_signal.noise_amplitude
+                response_time_list_trial, bout_decision_list_trial, time_list_trial, _ = self.simulate_trial(self.input_signal.value, noise_amplitude, dt)
                 response_time_list[index_trial] = response_time_list_trial
                 bout_decision_list[index_trial] = bout_decision_list_trial
                 time_list[index_trial] = time_list_trial
@@ -150,7 +165,7 @@ class DDMstable(Model):
             }
         return output
 
-    def simulate_trial(self, input_signal, dt=None):
+    def simulate_trial(self, input_signal, noise_amplitude=1, dt=None):
         # Unpacks fittable parameters and forwards them, with the input
         # signal cast to a numba-typed list, to the JIT-compiled routine.
         if dt is None:
@@ -159,10 +174,12 @@ class DDMstable(Model):
                 self.parameters.scaling_factor.value,
                 self.parameters.threshold.value,
                 self.parameters.noise_sigma.value,
+                self.parameters.noise_sigma_offset.value,
                 self.parameters.leak.value,
                 self.parameters.inactive_time.value,
                 self.parameters.residual_after_bout.value,
                 nb.typed.List(input_signal),
+                noise_amplitude,
                 dt
             )
 
@@ -172,9 +189,11 @@ class DDMstable(Model):
             scaling_factor,
             threshold,
             noise_sigma,
+            noise_sigma_offset,
             leak,
             inactive_time,
             residual_after_bout,
+            noise_amplitude,
             input_signal, dt):
         # JIT-compiled integration loop for a time-varying input signal.
         # Kept static (no `self`) so numba can compile it efficiently.
@@ -187,7 +206,7 @@ class DDMstable(Model):
 
         time_last_bout = 0
         # Pre-draw all noise increments (Euler-Maruyama scaling by sqrt(dt)).
-        noise = np.random.normal(0, noise_sigma * np.sqrt(dt), len(input_signal))
+        noise = np.random.normal(0, (noise_sigma_offset + noise_amplitude * noise_sigma) * np.sqrt(dt), len(input_signal))
         for i in range(1, len(input_signal)):
             dx = scaling_factor * np.sqrt(input_signal[i]) - leak * xs[i - 1]
 
@@ -219,7 +238,7 @@ class DDMstable(Model):
 
         return response_time_list, bout_decision_list, time_list, xs
 
-    def simulate_trial_constant(self, value_input_signal, duration_input_signal, dt=None):
+    def simulate_trial_constant(self, value_input_signal, duration_input_signal, noise_amplitude=1, dt=None):
         # Analogous to simulate_trial but for a constant input value held
         # over a fixed duration (used for "window"/"constant" conditions).
         if dt is None:
@@ -228,11 +247,13 @@ class DDMstable(Model):
                 self.parameters.scaling_factor.value,
                 self.parameters.threshold.value,
                 self.parameters.noise_sigma.value,
+                self.parameters.noise_sigma_offset.value,
                 self.parameters.leak.value,
                 self.parameters.inactive_time.value,
                 self.parameters.residual_after_bout.value,
                 value_input_signal,
                 duration_input_signal,
+                noise_amplitude,
                 dt
             )
 
@@ -242,11 +263,13 @@ class DDMstable(Model):
             scaling_factor,
             threshold,
             noise_sigma,
+            noise_sigma_offset,
             leak,
             inactive_time,
             residual_after_bout,
             value_input_signal,
             duration_input_signal,
+            noise_amplitude,
             dt):
         # JIT-compiled integration loop for a constant input, run for
         # duration_input_signal/dt steps. Scalar state instead of arrays,
@@ -260,7 +283,7 @@ class DDMstable(Model):
         time_list = np.full(int(duration_input_signal/dt), np.nan, dtype=np.float32)
 
         time_last_bout = 0
-        noise = np.random.normal(0, noise_sigma * np.sqrt(dt), int(duration_input_signal/dt))
+        noise = np.random.normal(0, (noise_sigma_offset + noise_amplitude * noise_sigma) * np.sqrt(dt), int(duration_input_signal/dt))
         for t_i in range(0, int(duration_input_signal/dt)):
             dx = scaling_factor * np.sqrt(value_input_signal) - leak * xs_old
 

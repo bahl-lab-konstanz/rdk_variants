@@ -38,7 +38,7 @@ from utils.config import ConfigurationAnalysis, ConfigurationExperiment, Configu
 stimulus_variant = "CoherentDotsFrameBasedRedraw"
 env = dotenv_values("config.env")
 path_dir = Path(env['PATH_DIR'])
-path_data = path_dir / stimulus_variant  # directory containing behavioral datasets
+path_data = path_dir / "results" / "input_only_motion_leak5" / stimulus_variant  # directory containing behavioral datasets and modeling results
 path_save = Path(env['PATH_SAVE'])     # directory to save output figures
 
 # =====================================================================
@@ -69,11 +69,11 @@ lw = 1  # default line width
 # =====================================================================
 # Toggles to enable/disable different parts of the figure
 # =====================================================================
-show_loss_reduction = True
-show_repeatability = True
-show_psychometric_curve = True
-show_coherence_vs_interbout_interval = True
-show_rt_distributions = True
+show_loss_reduction = False
+show_repeatability = False
+show_psychometric_curve = False
+show_coherence_vs_interbout_interval = False
+show_rt_distributions = False
 show_individual_estimations = True
 show_distribution_parameters = True
 
@@ -108,7 +108,7 @@ config_list = [
 ]
 
 # Number of model fits to show
-n_repeats = 10
+n_repeats = 5
 
 # Load datasets for each example fish
 for i_fish, fish in enumerate(fish_to_include_list):
@@ -450,7 +450,10 @@ if show_individual_estimations or show_distribution_parameters:
 
     # Loop over models to extract median parameter values
     for i_model, id_model in enumerate(model_dict.keys()):
-        df_model_fit_list = pd.concat(model_dict[id_model]["fit"])
+        try:
+            df_model_fit_list = pd.concat(model_dict[id_model]["fit"])
+        except ValueError:
+            print(f"WARNING | no model found for fish {id_model}")
         id_fish = i_model
 
         # if from_best_model:
@@ -474,6 +477,9 @@ if show_individual_estimations or show_distribution_parameters:
             array_here = np.full(n_repeats, np.nan)
             array_here[:len(df_model_fit_list[p["label"]])] = np.array(df_model_fit_list[p["label"]])
             model_parameter_raw_array[i_p+1, i_model] = array_here
+
+            if p["label"] == "leak" and p_median > 4:
+                print(f"High median estimated leak {p_median} for fish {id_model}")
 
             # Organize raw data per fish
             if id_model not in raw_data_dict_per_fish[p["label"]].keys():
@@ -614,4 +620,6 @@ if show_individual_estimations or show_distribution_parameters:
 # =====================================================================
 # Finalize and save figure
 # =====================================================================
-fig.save(path_save / f"figure_3_{stimulus_variant}.pdf", open_file=False, tight=style.page_tight)
+path_output = path_save / f"figure_{stimulus_variant}.pdf"
+print(f"Saving to {path_output}")
+fig.save(path_output, open_file=False, tight=style.page_tight)
