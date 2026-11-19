@@ -89,7 +89,7 @@ if __name__ == '__main__':
     parameters.add_parameter("dt", Parameter(value=dt))
     parameters.add_parameter("residual_after_bout", Parameter(min=0, max=1, value=0, fittable=True))
     parameters.add_parameter("noise_sigma", Parameter(min=0, max=5, value=1, fittable=True))
-    parameters.add_parameter("noise_sigma_offset", Parameter(min=0, max=5, value=0, fittable=True))
+    parameters.add_parameter("noise_sigma_offset", Parameter(min=0, max=5, value=0, fittable=False))
     parameters.add_parameter("leak", Parameter(min=-5, max=5, value=0, fittable=True))
     parameters.add_parameter("threshold", Parameter(min=0.01, max=2, value=1, fittable=False))
     parameters.add_parameter("scaling_factor", Parameter(min=-5, max=5, value=1, fittable=True))
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         fitting_input_signal = InputSignal(label='constant', value={
             param: {"value": df_stimulus_lookup[df_stimulus_lookup["stimulus_strength"] == param]["motion_strength"].iloc[0], 
                     "duration": trials_per_simulation * (time_end_stimulus - time_start_stimulus),
-                    "noise_amplitude": df_stimulus_lookup[df_stimulus_lookup["stimulus_strength"] == param]["motion_strength"].iloc[0]} 
+                    "noise_amplitude": df_stimulus_lookup[df_stimulus_lookup["stimulus_strength"] == param]["noise_strength"].iloc[0]} 
             for param in analysed_parameter_list
         })
 
