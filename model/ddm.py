@@ -283,7 +283,7 @@ class DDMstable(Model):
         time_list = np.full(int(duration_input_signal/dt), np.nan, dtype=np.float32)
 
         time_last_bout = 0
-        noise = np.random.normal(0, (noise_sigma_offset + np.sqrt(noise_amplitude) * noise_sigma) * np.sqrt(dt), int(duration_input_signal/dt))
+        noise = np.random.normal(0, np.sqrt(noise_sigma_offset**2 + noise_amplitude * noise_sigma**2) * np.sqrt(dt), int(duration_input_signal/dt))
         for t_i in range(0, int(duration_input_signal/dt)):
             dx = scaling_factor * np.sqrt(value_input_signal) - leak * xs_old
 
