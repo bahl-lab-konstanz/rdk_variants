@@ -206,7 +206,7 @@ class DDMstable(Model):
 
         time_last_bout = 0
         # Pre-draw all noise increments (Euler-Maruyama scaling by sqrt(dt)).
-        noise = np.random.normal(0, (noise_sigma_offset + np.sqrt(noise_amplitude) * noise_sigma) * np.sqrt(dt), len(input_signal))
+        noise = np.random.normal(0, np.sqrt(noise_sigma_offset**2 + noise_amplitude * noise_sigma**2) * np.sqrt(dt), len(input_signal))
         for i in range(1, len(input_signal)):
             dx = scaling_factor * np.sqrt(input_signal[i]) - leak * xs[i - 1]
 
